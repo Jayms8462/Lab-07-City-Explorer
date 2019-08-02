@@ -52,4 +52,9 @@ function Weather(data) {
     this.time = new Date(data.time * 1000).toString().slice(0,15);
 }
 
+function search(request, response) {
+    const locationName = request.query.data;
+    const geocodeURL = `https://maps.googleapis.com/maps/api/geocode/json?address=${locationName}&key=${GEOCODE_API_KEY}`;
+}
+
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`))

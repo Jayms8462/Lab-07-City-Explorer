@@ -9,6 +9,8 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 
+const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
+
 let test1 = [];
 //create a route with a method of get and a path of location
 app.get('/location', (request, response) => {

@@ -55,3 +55,7 @@ function Weather(data) {
     this.forecast = data.summary;
     this.time = new Date(data.time * 1000).toString().slice(0, 15);
 }
+
+function serchWea(query){
+    const url = 'https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/[latitude],[longitude]';
+}

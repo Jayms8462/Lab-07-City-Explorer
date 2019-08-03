@@ -4,7 +4,7 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const cors = require('cors');
-
+const superagent = require("superagent");
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
@@ -49,10 +49,10 @@ function Location(query, jsonData) {
 
 function Weather(data) {
     this.summary = data.summary;
-    this.time = new Date(data.time * 1000).toString().slice(0,15);
+    this.time = new Date(data.time * 1000).toString().slice(0, 15);
 }
 
-function search(request, response) {
+function search(query) {
     const locationName = request.query.data;
     const geocodeURL = `https://maps.googleapis.com/maps/api/geocode/json?address=${locationName}&key=${GEOCODE_API_KEY}`;
 }

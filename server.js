@@ -3,22 +3,41 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+// const client = require('pg');
 const cors = require('cors');
 const superagent = require("superagent");
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 
-const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
+//container for .env variables
+// const client = new pg.Client(precess.end.DATABASE_URL);
+
+app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
 app.get('/location', (request, response) => {
-    try {
-        let locationData = getData(request.query.data);
-        response.send(locationData);
-    } catch (error) {
-        console.log('There was an error!');
-    }
-});
+    searchLoc(request.query.data) //pulls what was input into field
+    .then(location => {
+        response.send(location)}); //responds with text entered into field
+})
+
+// function constructor
+function Location(query, data) {
+    this.search_query = query; //outputs what was entered into field
+    this.formatted_query = data.body.results[0].formatted_address; //outputs the formatted_query in JSON AKA the City, State, Country
+    this.latitude = data.body.results[0].geometry.location.lat; //outputs the Latitude of the element in JSON
+    this.longitude = data.body.results[0].geometry.location.lng; //outputs the Longitude of the element in JSON
+}
+
+function searchLoc(query){
+    const url =`https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${process.env.GEOCODE_API_KEY}`; // defines the URL for the JSON of Maps, passes in what was put intot he field and my API key
+    return superagent.get(url)
+    .then(res => {
+        let test = new Location(query, res);
+        console.log("Res: ", test);
+      return test;
+    })
+}
 
 app.get('/weather', (request, response) => {
     try {
@@ -28,37 +47,11 @@ app.get('/weather', (request, response) => {
         response.send(var1);
     } catch (error) {
         console.log('There was an error loading the weather data')
+        respond.status(500).send("Server error", error);
     }
 })
-
-function error(err, response) {
-    console.error(err);
-    if (response) {
-        response.status(500).send("Sorry, Try Again Later");
-    }
-}
-//function to be invoked by the get() 
-
-function getData(locationName) {
-    let jsonData = require('./data/geo.json');
-    let location = new Location(locationName, jsonData);
-    return location;
-}
-
-// function constructor
-function Location(query, jsonData) {
-    this.sear_query = query;
-    this.formatted_query = jsonData.results[0].formatted_address, this.latitude = jsonData.results[0].geometry.location.lat, this.longitude = jsonData.results[0].geometry.location.lng
-}
 
 function Weather(data) {
     this.forecast = data.summary;
     this.time = new Date(data.time * 1000).toString().slice(0, 15);
 }
-
-function search(query) {
-    const locationName = request.query.data;
-    const geocodeURL = `https://maps.googleapis.com/maps/api/geocode/json?address=${locationName}&key=${GEOCODE_API_KEY}`;
-}
-
-app.listen(PORT, () => console.log(`Listening on port ${PORT}`))

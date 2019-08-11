@@ -32,10 +32,7 @@ function searchLoc(request, response) {
         .then(result => {
             response.send(new Location(request.query.data, result));
         })
-        .catch(error => {
-            console.log('There was an error loading the location data')
-            response.status(500).send("Server error", error);
-        })
+        .catch(error => eventError(error, response))
 
 }
 
@@ -54,30 +51,31 @@ function searchWea(request, response) {
             );
             response.send(wea);
         })
-        .catch(error => {
-            console.log('There was an error loading the weather data')
-            response.status(500).send("Server error", error);
-        })
+        .catch(error => eventError(error, response))
 }
 
-function Events(eve) {
-    this.link = eve.url;
-    this.name = eve.name.text;
-    this.event_date = new Date(data.time * 1000).toString().slice(0, 15);
-    this.summary = event.summary;
+function Event(data) {
+    this.link = data.url;
+    this.name = data.name.text;
+    this.event_date = new Date(data.start.local).toString().slice(0, 15);
+    this.summary = data.summary;
 }
 
 function searchEve(request, response) {
     const url = `https://www.eventbriteapi.com/v3/events/search?token=${process.env.EVENTBRITE_API_KEY}&location.address=${request.query.data.search_query}`;
     superagent.get(url)
         .then(result => {
-            const eve = result.body.events.map(test => {
-                return test => new Events(eve)
+            const events = result.body.events.map(data => {
+                return new Event(data);
             });
-            resonse.send(events);
+            response.send(events);
         })
-        .catch(error => {
-            console.log('There was an error loading the event data')
-            response.status(500).send("Server error", error);
-        })
+        .catch(error => eventError(error, response))
+}
+
+function eventError() {
+    console.error(error);
+    if (response) {
+        response.status(500).send("Sorry, something went wrong here.");
+    }
 }
